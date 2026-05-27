@@ -13,7 +13,11 @@ let userName = localStorage.getItem("counterApp2UserName");
 
 if (!userName) {
   userName = prompt("사용자 이름을 입력하세요") || "unknown";
-  localStorage.setItem("counterApp2UserName", userName);
+
+  localStorage.setItem(
+    "counterApp2UserName",
+    userName
+  );
 }
 
 const countEl = document.getElementById("count");
@@ -46,6 +50,17 @@ function updateCountDisplay(value) {
   }
 }
 
+function resetUserName() {
+  localStorage.removeItem("counterApp2UserName");
+
+  userName = prompt("사용자 이름을 입력하세요") || "unknown";
+
+  localStorage.setItem(
+    "counterApp2UserName",
+    userName
+  );
+}
+
 async function autoResetIfNewDay() {
   const { data, error } = await db
     .from("counters")
@@ -61,17 +76,22 @@ async function autoResetIfNewDay() {
   const today = getTodayKorea();
   const lastDate = getDateKorea(data.updated_at);
 
-  if (today !== lastDate && data.value !== 0) {
-    const result = await db.rpc("reset_counter", {
-      p_user_name: userName
-    });
+  if (today !== lastDate) {
+    if (data.value !== 0) {
+      const result = await db.rpc("reset_counter", {
+        p_user_name: userName
+      });
 
-    if (result.error) {
-      console.error(result.error);
-      return;
+      if (result.error) {
+        console.error(result.error);
+        return;
+      }
+
+      updateCountDisplay(result.data);
     }
 
-    updateCountDisplay(result.data);
+    resetUserName();
+
     return;
   }
 
@@ -111,6 +131,7 @@ async function resetCount() {
   }
 
   const ok = confirm("정말 리셋하시겠습니까?");
+
   if (!ok) return;
 
   const { data, error } = await db.rpc("reset_counter", {
