@@ -24,14 +24,13 @@ body {
   justify-content: center;
   align-items: center;
 
-  gap: 22px;
-  padding: 20px 16px 32px;
+  gap: 24px;
+  padding: 24px 16px;
 }
 
 .logo {
-  width: 300px;
+  width: 320px;
   object-fit: contain;
-  margin-bottom: 12px;
 }
 
 .count {
@@ -44,15 +43,12 @@ body {
   justify-content: center;
   align-items: center;
 
-  font-size: 92px;
+  font-size: 75px;
   font-weight: 900;
-  line-height: 1;
 
   color: white;
 
   transition: 0.2s;
-
-  margin-bottom: 38px;
 }
 
 .danger {
@@ -113,26 +109,15 @@ button:hover {
   color: white;
 }
 
-/* 모바일 */
 @media (max-width: 650px) {
-  .wrap {
-    justify-content: flex-start;
-    gap: 18px;
-    padding-top: 115px;
-  }
-
   .logo {
-    width: 230px;
-    margin-bottom: 30px;
+    width: 240px;
   }
 
   .count {
     width: 240px;
-    height: 90px;
-
-    font-size: 86px;
-
-    margin-bottom: 68px;
+    height: 140px;
+    font-size: 61px;
   }
 
   .button-row {
