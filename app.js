@@ -36,8 +36,6 @@ let counts = {
 
 let b2Status = null;
 
-let logs = [];
-
 let isLoading = false;
 
 
@@ -47,21 +45,15 @@ let isLoading = false;
 
 function getToday() {
 
-  const formatter =
-    new Intl.DateTimeFormat(
-      "en-CA",
-      {
-        timeZone: "Asia/Seoul",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-      }
-    );
-
-
-  return formatter.format(
-    new Date()
-  );
+  return new Intl.DateTimeFormat(
+    "en-CA",
+    {
+      timeZone: "Asia/Seoul",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }
+  ).format(new Date());
 }
 
 
@@ -69,15 +61,10 @@ function getToday() {
    한국 기준 날짜 + 시간
 ========================================================= */
 
-function getDateTime(
-  dateValue
-) {
+function getDateTime(dateValue) {
 
   const date =
-    new Date(
-      dateValue
-    );
-
+    new Date(dateValue);
 
   const formatter =
     new Intl.DateTimeFormat(
@@ -94,15 +81,10 @@ function getDateTime(
       }
     );
 
-
   const parts =
-    formatter.formatToParts(
-      date
-    );
-
+    formatter.formatToParts(date);
 
   const result = {};
-
 
   parts.forEach(
     part => {
@@ -119,7 +101,6 @@ function getDateTime(
 
     }
   );
-
 
   return (
     `${result.year}-` +
@@ -140,7 +121,6 @@ function askUserName() {
 
   let userName = "";
 
-
   while (
     !userName
   ) {
@@ -150,12 +130,6 @@ function askUserName() {
         "사용자 이름을 입력해주세요."
       );
 
-
-    /*
-      취소를 눌러도
-      사용자 이름은 반드시 입력
-    */
-
     if (
       input === null
     ) {
@@ -163,23 +137,19 @@ function askUserName() {
       continue;
     }
 
-
     userName =
       input.trim();
   }
-
 
   localStorage.setItem(
     "counterUser",
     userName
   );
 
-
   localStorage.setItem(
     "counterUserDate",
     getToday()
   );
-
 
   return userName;
 }
@@ -194,30 +164,19 @@ function loadUser() {
   const today =
     getToday();
 
-
   const savedUser =
     localStorage.getItem(
       "counterUser"
     );
-
 
   const savedDate =
     localStorage.getItem(
       "counterUserDate"
     );
 
-
-  /*
-    이름이 없거나
-    날짜가 바뀌었으면
-    새로 입력
-  */
-
   if (
-    !savedUser
-    ||
-    savedUser.trim() === ""
-    ||
+    !savedUser ||
+    savedUser.trim() === "" ||
     savedDate !== today
   ) {
 
@@ -225,7 +184,6 @@ function loadUser() {
 
     return askUserName();
   }
-
 
   return savedUser;
 }
@@ -240,7 +198,6 @@ function clearUser() {
   localStorage.removeItem(
     "counterUser"
   );
-
 
   localStorage.removeItem(
     "counterUserDate"
@@ -266,16 +223,13 @@ function createEmptyCounts() {
    숫자 표시
 ========================================================= */
 
-function formatCount(
-  value
-) {
+function formatCount(value) {
 
-  return String(
-    value
-  ).padStart(
-    3,
-    "0"
-  );
+  return String(value)
+    .padStart(
+      3,
+      "0"
+    );
 }
 
 
@@ -293,7 +247,6 @@ function render() {
           `count-${floor}`
         );
 
-
       if (
         element
       ) {
@@ -306,7 +259,6 @@ function render() {
 
     }
   );
-
 
   renderB2();
 }
@@ -323,7 +275,6 @@ function renderB2() {
       "b2-status"
     );
 
-
   if (
     !element
   ) {
@@ -331,12 +282,10 @@ function renderB2() {
     return;
   }
 
-
   element.classList.remove(
     "open",
     "close"
   );
-
 
   if (
     b2Status === "OPEN"
@@ -345,28 +294,22 @@ function renderB2() {
     element.textContent =
       "OPEN";
 
-
     element.classList.add(
       "open"
     );
 
-  }
-
-  else if (
+  } else if (
     b2Status === "CLOSE"
   ) {
 
     element.textContent =
       "CLOSE";
 
-
     element.classList.add(
       "close"
     );
 
-  }
-
-  else {
+  } else {
 
     element.textContent =
       "-";
@@ -375,24 +318,26 @@ function renderB2() {
 
 
 /* =========================================================
-   오늘 기록 불러오기
+   현재 화면 상태 불러오기
+
+   숫자:
+   counter_states
+
+   B2:
+   오늘 counter_events
 ========================================================= */
 
 async function loadTodayData() {
 
   if (
-    !supabase
-    ||
+    !supabase ||
     isLoading
   ) {
 
     return;
   }
 
-
-  isLoading =
-    true;
-
+  isLoading = true;
 
   try {
 
@@ -400,16 +345,120 @@ async function loadTodayData() {
       getToday();
 
 
+    /* =====================================================
+       2F / 1F / B1 현재 숫자
+    ===================================================== */
+
     const {
-      data,
-      error
+      data: stateData,
+      error: stateError
+    } =
+      await supabase
+        .from(
+          "counter_states"
+        )
+        .select(
+          "category, current_value, updated_at"
+        )
+        .in(
+          "category",
+          FLOORS
+        );
+
+
+    if (
+      stateError
+    ) {
+
+      console.error(
+        "현재 카운터 불러오기 오류:",
+        stateError
+      );
+
+    } else {
+
+      const newCounts =
+        createEmptyCounts();
+
+
+      if (
+        Array.isArray(
+          stateData
+        )
+      ) {
+
+        stateData.forEach(
+          item => {
+
+            if (
+              !FLOORS.includes(
+                item.category
+              )
+            ) {
+
+              return;
+            }
+
+
+            const updatedDate =
+              new Intl.DateTimeFormat(
+                "en-CA",
+                {
+                  timeZone:
+                    "Asia/Seoul",
+
+                  year:
+                    "numeric",
+
+                  month:
+                    "2-digit",
+
+                  day:
+                    "2-digit"
+                }
+              ).format(
+                new Date(
+                  item.updated_at
+                )
+              );
+
+
+            if (
+              updatedDate === today
+            ) {
+
+              newCounts[
+                item.category
+              ] =
+                Number(
+                  item.current_value
+                ) || 0;
+            }
+
+          }
+        );
+      }
+
+
+      counts =
+        newCounts;
+    }
+
+
+    /* =====================================================
+       오늘 B2 상태 확인
+    ===================================================== */
+
+    const {
+      data: eventData,
+      error: eventError
     } =
       await supabase
         .from(
           "counter_events"
         )
         .select(
-          "id, created_at, user_name, category, current_status, event_date"
+          "id, category, current_status"
         )
         .eq(
           "event_date",
@@ -424,151 +473,67 @@ async function loadTodayData() {
 
 
     if (
-      error
+      eventError
     ) {
 
       console.error(
-        "데이터 불러오기 오류:",
-        error
+        "B2 기록 불러오기 오류:",
+        eventError
       );
 
-      return;
-    }
+    } else {
+
+      let newB2Status =
+        null;
 
 
-    /*
-      서버 기록 기준으로
-      화면 상태 재구성
-    */
+      if (
+        Array.isArray(
+          eventData
+        )
+      ) {
 
-    const newCounts =
-      createEmptyCounts();
-
-
-    let newB2Status =
-      null;
-
-
-    const newLogs =
-      [];
-
-
-    if (
-      Array.isArray(
-        data
-      )
-    ) {
-
-      data.forEach(
-        item => {
-
-          const category =
-            item.category;
-
-
-          const status =
-            item.current_status;
-
-
-          /* =========================
-             2F / 1F / B1
-          ========================= */
-
-          if (
-            FLOORS.includes(
-              category
-            )
-          ) {
-
-            const number =
-              parseInt(
-                status,
-                10
-              );
-
+        eventData.forEach(
+          item => {
 
             if (
-              !Number.isNaN(
-                number
+              item.category === "B2" &&
+              (
+                item.current_status === "OPEN" ||
+                item.current_status === "CLOSE"
               )
             ) {
 
-              newCounts[
-                category
-              ] =
-                number;
+              newB2Status =
+                item.current_status;
             }
 
-          }
 
-
-          /* =========================
-             B2
-          ========================= */
-
-          if (
-            category === "B2"
-          ) {
+            /*
+              RESET 이후 B2도 초기화
+            */
 
             if (
-              status === "OPEN"
-              ||
-              status === "CLOSE"
+              item.category === "RESET"
             ) {
 
               newB2Status =
-                status;
+                null;
             }
 
           }
+        );
+      }
 
 
-          /* =========================
-             LOG
-          ========================= */
-
-          newLogs.push(
-            {
-
-              datetime:
-                getDateTime(
-                  item.created_at
-                ),
-
-              user:
-                item.user_name || "",
-
-              category:
-                item.category || "",
-
-              status:
-                item.current_status || ""
-
-            }
-          );
-
-        }
-      );
+      b2Status =
+        newB2Status;
     }
-
-
-    counts =
-      newCounts;
-
-
-    b2Status =
-      newB2Status;
-
-
-    logs =
-      newLogs;
 
 
     render();
 
-  }
-
-  catch (
+  } catch (
     error
   ) {
 
@@ -577,9 +542,7 @@ async function loadTodayData() {
       error
     );
 
-  }
-
-  finally {
+  } finally {
 
     isLoading =
       false;
@@ -596,12 +559,10 @@ function checkDate() {
   const today =
     getToday();
 
-
   const savedUserDate =
     localStorage.getItem(
       "counterUserDate"
     );
-
 
   if (
     savedUserDate !== today
@@ -612,24 +573,12 @@ function checkDate() {
     return true;
   }
 
-
   return false;
 }
 
 
 /* =========================================================
    2F / 1F / B1 카운터 변경
-
-   ★ 중요 ★
-
-   여기서는 브라우저가 직접
-   +1 / -1을 계산하지 않음.
-
-   Supabase PostgreSQL 함수가
-   원자적으로 처리함.
-
-   따라서 여러 기기에서 동시에
-   클릭해도 순서대로 처리됨.
 ========================================================= */
 
 async function changeCount(
@@ -682,25 +631,16 @@ async function changeCount(
         error
       );
 
-
       alert(
         "카운터 저장 중 오류가 발생했습니다."
       );
-
 
       return;
     }
 
 
-    /*
-      Supabase 함수가 돌려준
-      최종 숫자
-    */
-
     const newValue =
-      Number(
-        data
-      );
+      Number(data);
 
 
     if (
@@ -714,20 +654,13 @@ async function changeCount(
       ] =
         newValue;
 
-
       render();
     }
 
 
-    /*
-      서버 전체 상태 다시 동기화
-    */
-
     await loadTodayData();
 
-  }
-
-  catch (
+  } catch (
     error
   ) {
 
@@ -735,7 +668,6 @@ async function changeCount(
       "카운터 처리 오류:",
       error
     );
-
 
     alert(
       "카운터 처리 중 오류가 발생했습니다."
@@ -745,7 +677,7 @@ async function changeCount(
 
 
 /* =========================================================
-   B2 상태 저장
+   B2 OPEN / CLOSE 저장
 ========================================================= */
 
 async function setB2Status(
@@ -801,11 +733,9 @@ async function setB2Status(
         error
       );
 
-
       alert(
         "B2 상태 저장 중 오류가 발생했습니다."
       );
-
 
       return;
     }
@@ -814,15 +744,12 @@ async function setB2Status(
     b2Status =
       status;
 
-
     renderB2();
 
 
     await loadTodayData();
 
-  }
-
-  catch (
+  } catch (
     error
   ) {
 
@@ -836,6 +763,12 @@ async function setB2Status(
 
 /* =========================================================
    RESET
+
+   중요:
+   기록은 절대 삭제하지 않음.
+
+   현재 상태만 초기화하고
+   RESET 이벤트를 새 기록으로 추가
 ========================================================= */
 
 async function manualReset() {
@@ -862,14 +795,13 @@ async function manualReset() {
       "비밀번호가 올바르지 않습니다."
     );
 
-
     return;
   }
 
 
   const confirmReset =
     confirm(
-      "카운터 데이터를 초기화하시겠습니까?"
+      "현재 카운터를 초기화하시겠습니까?"
     );
 
 
@@ -881,127 +813,71 @@ async function manualReset() {
   }
 
 
-  const today =
-    getToday();
+  const userName =
+    loadUser();
 
 
   try {
 
-    /* =========================
-       현재 카운터 0으로 초기화
-    ========================= */
-
     const {
-      error: stateError
+      error
     } =
       await supabase
-        .from(
-          "counter_states"
-        )
-        .update(
+        .rpc(
+          "reset_counters",
           {
 
-            current_value:
-              0,
-
-            updated_at:
-              new Date()
-                .toISOString()
+            p_user_name:
+              userName
 
           }
-        )
-        .in(
-          "category",
-          FLOORS
         );
 
 
     if (
-      stateError
+      error
     ) {
 
       console.error(
-        "상태 초기화 오류:",
-        stateError
+        "RESET 오류:",
+        error
       );
-
 
       alert(
         "카운터 초기화 중 오류가 발생했습니다."
       );
-
-
-      return;
-    }
-
-
-    /* =========================
-       오늘 로그 삭제
-    ========================= */
-
-    const {
-      error: logError
-    } =
-      await supabase
-        .from(
-          "counter_events"
-        )
-        .delete()
-        .eq(
-          "event_date",
-          today
-        );
-
-
-    if (
-      logError
-    ) {
-
-      console.error(
-        "로그 초기화 오류:",
-        logError
-      );
-
-
-      alert(
-        "기록 초기화 중 오류가 발생했습니다."
-      );
-
 
       return;
     }
 
 
     /*
-      사용자 이름은 유지
+      현재 화면만 초기화
     */
-
 
     counts =
       createEmptyCounts();
 
-
     b2Status =
       null;
 
-
-    logs =
-      [];
-
-
     render();
 
-  }
 
-  catch (
+    /*
+      과거 기록은 건드리지 않음
+    */
+
+    await loadTodayData();
+
+  } catch (
     error
   ) {
 
     console.error(
-      "RESET 오류:",
+      "RESET 처리 오류:",
       error
     );
-
 
     alert(
       "초기화 중 오류가 발생했습니다."
@@ -1011,14 +887,9 @@ async function manualReset() {
 
 
 /* =========================================================
-   자정 자동 초기화
+   날짜 변경 시 화면 초기화
 
-   서버 기록을 삭제하는 것이 아니라
-   새 날짜로 넘어가기 때문에
-   화면은 자동으로 0부터 시작.
-
-   사용자 이름만 삭제 후
-   다시 입력받음.
+   과거 Supabase 기록은 삭제하지 않음
 ========================================================= */
 
 function automaticDailyReset() {
@@ -1026,42 +897,21 @@ function automaticDailyReset() {
   counts =
     createEmptyCounts();
 
-
   b2Status =
     null;
 
-
-  logs =
-    [];
-
-
-  /*
-    이름 초기화
-  */
-
   clearUser();
-
 
   render();
 
-
-  /*
-    새 날짜 사용자 이름
-  */
-
   askUserName();
-
-
-  /*
-    새 날짜 기록 불러오기
-  */
 
   loadTodayData();
 }
 
 
 /* =========================================================
-   밤 12시 자동 실행
+   자정 자동 처리
 ========================================================= */
 
 function scheduleMidnightReset() {
@@ -1070,16 +920,13 @@ function scheduleMidnightReset() {
     new Date();
 
 
-  /*
-    한국 현재시각 계산
-  */
-
   const koreaNow =
     new Date(
       now.toLocaleString(
         "en-US",
         {
-          timeZone: "Asia/Seoul"
+          timeZone:
+            "Asia/Seoul"
         }
       )
     );
@@ -1105,8 +952,7 @@ function scheduleMidnightReset() {
 
 
   const delay =
-    midnight.getTime()
-    -
+    midnight.getTime() -
     koreaNow.getTime();
 
 
@@ -1114,7 +960,6 @@ function scheduleMidnightReset() {
     () => {
 
       automaticDailyReset();
-
 
       scheduleMidnightReset();
 
@@ -1127,6 +972,14 @@ function scheduleMidnightReset() {
 
 /* =========================================================
    EXCEL DOWNLOAD
+
+   ★ 모든 날짜
+   ★ 모든 사용자
+   ★ 모든 카운트
+   ★ 모든 B2 상태
+   ★ 모든 RESET 기록
+
+   전부 다운로드
 ========================================================= */
 
 async function exportExcel() {
@@ -1139,14 +992,6 @@ async function exportExcel() {
   }
 
 
-  /*
-    다운로드 직전
-    최신 서버 데이터 확인
-  */
-
-  await loadTodayData();
-
-
   if (
     typeof XLSX === "undefined"
   ) {
@@ -1155,102 +1000,162 @@ async function exportExcel() {
       "엑셀 기능을 불러오지 못했습니다."
     );
 
-
     return;
   }
 
 
-  if (
-    logs.length === 0
-  ) {
+  try {
 
-    alert(
-      "저장된 기록이 없습니다."
-    );
+    /*
+      날짜 조건을 걸지 않음.
+
+      counter_events에 저장된
+      모든 기록을 가져옴.
+    */
+
+    const {
+      data,
+      error
+    } =
+      await supabase
+        .from(
+          "counter_events"
+        )
+        .select(
+          "id, created_at, user_name, category, current_status, event_date"
+        )
+        .order(
+          "id",
+          {
+            ascending: true
+          }
+        );
 
 
-    return;
-  }
+    if (
+      error
+    ) {
 
-
-  const excelData = [
-
-    [
-      "일자와 시간",
-      "사용자 이름",
-      "구분",
-      "현재상태"
-    ]
-
-  ];
-
-
-  logs.forEach(
-    item => {
-
-      excelData.push(
-        [
-
-          item.datetime,
-
-          item.user,
-
-          item.category,
-
-          item.status
-
-        ]
+      console.error(
+        "전체 기록 불러오기 오류:",
+        error
       );
 
+      alert(
+        "엑셀 기록을 불러오지 못했습니다."
+      );
+
+      return;
     }
-  );
 
 
-  const workbook =
-    XLSX.utils.book_new();
+    if (
+      !Array.isArray(data) ||
+      data.length === 0
+    ) {
+
+      alert(
+        "저장된 기록이 없습니다."
+      );
+
+      return;
+    }
 
 
-  const worksheet =
-    XLSX.utils.aoa_to_sheet(
-      excelData
-    );
+    const excelData = [
 
-
-  worksheet[
-    "!cols"
-  ] =
-    [
-
-      {
-        wch: 22
-      },
-
-      {
-        wch: 18
-      },
-
-      {
-        wch: 12
-      },
-
-      {
-        wch: 15
-      }
+      [
+        "일자와 시간",
+        "사용자 이름",
+        "구분",
+        "현재상태"
+      ]
 
     ];
 
 
-  XLSX.utils.book_append_sheet(
-    workbook,
-    worksheet,
-    "COUNTER LOG"
-  );
+    data.forEach(
+      item => {
+
+        excelData.push(
+          [
+
+            getDateTime(
+              item.created_at
+            ),
+
+            item.user_name || "",
+
+            item.category || "",
+
+            item.current_status || ""
+
+          ]
+        );
+
+      }
+    );
 
 
-  XLSX.writeFile(
-    workbook,
-    `COUNTER_${getToday()}.xlsx`
-  );
+    const workbook =
+      XLSX.utils.book_new();
+
+
+    const worksheet =
+      XLSX.utils.aoa_to_sheet(
+        excelData
+      );
+
+
+    worksheet[
+      "!cols"
+    ] =
+      [
+
+        {
+          wch: 22
+        },
+
+        {
+          wch: 18
+        },
+
+        {
+          wch: 12
+        },
+
+        {
+          wch: 15
+        }
+
+      ];
+
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "COUNTER LOG"
+    );
+
+
+    XLSX.writeFile(
+      workbook,
+      `COUNTER_ALL_${getToday()}.xlsx`
+    );
+
+  } catch (
+    error
+  ) {
+
+    console.error(
+      "Excel 오류:",
+      error
+    );
+
+    alert(
+      "엑셀 다운로드 중 오류가 발생했습니다."
+    );
+  }
 }
 
 
@@ -1285,10 +1190,6 @@ function setupButtons() {
         );
 
 
-      /* =========================
-         MINUS
-      ========================= */
-
       minusButton.addEventListener(
         "click",
         () => {
@@ -1301,10 +1202,6 @@ function setupButtons() {
         }
       );
 
-
-      /* =========================
-         PLUS
-      ========================= */
 
       plusButton.addEventListener(
         "click",
@@ -1322,10 +1219,6 @@ function setupButtons() {
   );
 
 
-  /* =========================
-     B2 OPEN
-  ========================= */
-
   document
     .getElementById(
       "open-button"
@@ -1341,10 +1234,6 @@ function setupButtons() {
       }
     );
 
-
-  /* =========================
-     B2 CLOSE
-  ========================= */
 
   document
     .getElementById(
@@ -1362,10 +1251,6 @@ function setupButtons() {
     );
 
 
-  /* =========================
-     RESET
-  ========================= */
-
   document
     .getElementById(
       "reset-button"
@@ -1375,10 +1260,6 @@ function setupButtons() {
       manualReset
     );
 
-
-  /* =========================
-     EXCEL
-  ========================= */
 
   document
     .getElementById(
@@ -1392,10 +1273,7 @@ function setupButtons() {
 
 
 /* =========================================================
-   자동 동기화
-
-   다른 노트북 / 휴대폰에서
-   누른 내용도 화면에 표시
+   다른 기기와 자동 동기화
 ========================================================= */
 
 function startAutoSync() {
@@ -1428,10 +1306,6 @@ async function init() {
 
   try {
 
-    /* =========================
-       Supabase Library
-    ========================= */
-
     const module =
       await import(
         "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
@@ -1445,54 +1319,24 @@ async function init() {
       );
 
 
-    /* =========================
-       사용자 이름
-
-       화면 진입 즉시 이름 확인
-    ========================= */
-
     loadUser();
-
-
-    /* =========================
-       버튼
-    ========================= */
 
     setupButtons();
 
-
-    /* =========================
-       오늘 데이터
-    ========================= */
-
     await loadTodayData();
-
-
-    /* =========================
-       다른 기기와 자동 동기화
-    ========================= */
 
     startAutoSync();
 
-
-    /* =========================
-       자정 초기화
-    ========================= */
-
     scheduleMidnightReset();
 
-
-    /* =========================
-       화면 다시 열었을 때
-    ========================= */
 
     document.addEventListener(
       "visibilitychange",
       async () => {
 
         if (
-          document.visibilityState
-          === "visible"
+          document.visibilityState ===
+          "visible"
         ) {
 
           if (
@@ -1511,12 +1355,10 @@ async function init() {
 
 
     console.log(
-      "Supabase 연결 완료 / 동시 클릭 모드 활성화"
+      "COUNTER 연결 완료"
     );
 
-  }
-
-  catch (
+  } catch (
     error
   ) {
 
@@ -1524,7 +1366,6 @@ async function init() {
       "초기화 오류:",
       error
     );
-
 
     alert(
       "Supabase 연결에 실패했습니다."
