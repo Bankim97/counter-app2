@@ -1,78 +1,185 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
 
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
+  >
 
-  <meta name="theme-color" content="#000000" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <title>Counter App2</title>
+  <title>COUNTER</title>
 
-  <link rel="apple-touch-icon" href="./C.png" />
-  <link rel="icon" href="./C.png" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="apple-touch-icon" href="./C.png">
+  <link rel="icon" href="./C.png">
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
-  <main class="wrap">
 
-    <img
-      src="./AVECS Logo.png"
-      alt="AVECS"
-      class="logo"
-    />
+  <main class="counter-app">
 
-    <div
-      id="count"
-      class="count"
-    >
-      0
+    <div class="counter-list">
+
+      <div class="counter-row" data-floor="2F">
+
+        <div class="floor">
+          2F
+        </div>
+
+        <div
+          class="count"
+          id="count-2F"
+        >
+          000
+        </div>
+
+        <button
+          class="control-button minus"
+          data-action="minus"
+          type="button"
+        >
+          −
+        </button>
+
+        <button
+          class="control-button plus"
+          data-action="plus"
+          type="button"
+        >
+          +
+        </button>
+
+      </div>
+
+
+      <div class="counter-row" data-floor="1F">
+
+        <div class="floor">
+          1F
+        </div>
+
+        <div
+          class="count"
+          id="count-1F"
+        >
+          000
+        </div>
+
+        <button
+          class="control-button minus"
+          data-action="minus"
+          type="button"
+        >
+          −
+        </button>
+
+        <button
+          class="control-button plus"
+          data-action="plus"
+          type="button"
+        >
+          +
+        </button>
+
+      </div>
+
+
+      <div class="counter-row" data-floor="B1">
+
+        <div class="floor">
+          B1
+        </div>
+
+        <div
+          class="count"
+          id="count-B1"
+        >
+          000
+        </div>
+
+        <button
+          class="control-button minus"
+          data-action="minus"
+          type="button"
+        >
+          −
+        </button>
+
+        <button
+          class="control-button plus"
+          data-action="plus"
+          type="button"
+        >
+          +
+        </button>
+
+      </div>
+
+
+      <div class="counter-row b2-row">
+
+        <div class="floor">
+          B2
+        </div>
+
+        <div
+          class="b2-status"
+          id="b2-status"
+        >
+          -
+        </div>
+
+        <button
+          class="control-button open-button"
+          id="open-button"
+          type="button"
+          aria-label="OPEN"
+        ></button>
+
+        <button
+          class="control-button close-button"
+          id="close-button"
+          type="button"
+          aria-label="CLOSE"
+        ></button>
+
+      </div>
+
     </div>
 
-    <section class="button-group">
 
-      <div class="button-row">
-        <button class="plus" onclick="changeCount(1, '인원1')">+1</button>
-        <button class="plus" onclick="changeCount(2, '인원2')">+2</button>
-        <button class="plus" onclick="changeCount(3, '인원3')">+3</button>
-        <button class="plus" onclick="changeCount(4, '인원4')">+4</button>
-        <button class="plus" onclick="changeCount(5, '인원5')">+5</button>
-      </div>
+    <div class="bottom-buttons">
 
-      <div class="button-row">
-        <button class="minus" onclick="changeCount(-1, '차감1')">-1</button>
-        <button class="minus" onclick="changeCount(-2, '차감2')">-2</button>
-        <button class="minus" onclick="changeCount(-3, '차감3')">-3</button>
-        <button class="minus" onclick="changeCount(-4, '차감4')">-4</button>
-        <button class="minus" onclick="changeCount(-5, '차감5')">-5</button>
-      </div>
+      <button
+        id="reset-button"
+        class="bottom-button"
+        type="button"
+      >
+        RESET
+      </button>
 
-    </section>
+      <button
+        id="excel-button"
+        class="bottom-button"
+        type="button"
+      >
+        EXCEL DOWNLOAD
+      </button>
 
-    <button
-      class="reset"
-      onclick="resetCount()"
-    >
-      Reset
-    </button>
-
-    <button
-      class="excel"
-      onclick="downloadCSV()"
-    >
-      Excel Download
-    </button>
+    </div>
 
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./app.js?v=5"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+  <script src="./app.js"></script>
+
 </body>
 </html>
