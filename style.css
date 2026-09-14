@@ -4,18 +4,29 @@
 
 html,
 body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #000000;
+  font-family: Arial, sans-serif;
   touch-action: manipulation;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background: #000000;
+  min-height: 100vh;
   overflow-x: hidden;
 }
 
-.wrap {
+button {
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.counter-app {
+  width: 100%;
   min-height: 100vh;
 
   display: flex;
@@ -24,114 +35,200 @@ body {
   justify-content: center;
   align-items: center;
 
-  gap: 24px;
   padding: 24px 16px;
 }
 
-.logo {
-  width: 320px;
-  object-fit: contain;
-}
+.counter-list {
+  width: 100%;
+  max-width: 620px;
 
-.count {
-  width: 280px;
-  height: 110px;
-
-  background: transparent;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  font-size: 75px;
-  font-weight: 900;
-
-  color: white;
-
-  transition: 0.2s;
-}
-
-.danger {
-  color: #ff3b3b;
-}
-
-.button-group {
   display: flex;
   flex-direction: column;
+
   gap: 14px;
 }
 
-.button-row {
+.counter-row {
+  width: 100%;
+  min-height: 110px;
+
   display: grid;
-  grid-template-columns: repeat(5, 100px);
+
+  grid-template-columns:
+    90px
+    minmax(120px, 1fr)
+    82px
+    82px;
+
+  align-items: center;
+
   gap: 12px;
+
+  padding: 14px 18px;
+
+  background: #151515;
+
+  border-radius: 22px;
 }
 
-button {
-  height: 54px;
+.floor {
+  color: #ffffff;
+
+  font-size: 30px;
+  font-weight: 800;
+
+  text-align: left;
+}
+
+.count,
+.b2-status {
+  color: #ffffff;
+
+  font-size: 46px;
+  font-weight: 800;
+
+  text-align: center;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.control-button {
+  width: 82px;
+  height: 70px;
 
   border: none;
-  border-radius: 14px;
+  border-radius: 18px;
 
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 38px;
+  font-weight: 700;
 
-  cursor: pointer;
-  transition: 0.2s;
-
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-.plus {
-  background: white;
-  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .minus {
-  background: white;
-  color: black;
+  background: #2f2f2f;
+  color: #bdbdbd;
 }
 
-.reset {
-  width: 548px;
-  background: white;
-  color: black;
+.plus {
+  background: #ff3b30;
+  color: #ffffff;
 }
 
-.excel {
-  width: 548px;
-  background: #10b981;
-  color: white;
+.open-button {
+  background: #1473e6;
+}
+
+.close-button {
+  background: #ff3b30;
+}
+
+.b2-status {
+  color: #8a8a8a;
+}
+
+.b2-status.open {
+  color: #1473e6;
+}
+
+.b2-status.close {
+  color: #ff3b30;
+}
+
+.bottom-buttons {
+  width: 100%;
+  max-width: 620px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 14px;
+
+  margin-top: 14px;
+}
+
+.bottom-button {
+  height: 58px;
+
+  border: none;
+  border-radius: 16px;
+
+  background: #242424;
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.bottom-button:hover,
+.control-button:hover {
+  opacity: 0.9;
+}
+
+.bottom-button:active,
+.control-button:active {
+  transform: scale(0.97);
 }
 
 @media (max-width: 650px) {
-  .logo {
-    width: 240px;
+
+  .counter-app {
+    padding: 18px 12px;
   }
 
-  .count {
-    width: 240px;
-    height: 140px;
-    font-size: 61px;
+  .counter-list {
+    max-width: 100%;
+    gap: 10px;
   }
 
-  .button-row {
-    grid-template-columns: repeat(5, 58px);
+  .counter-row {
+    min-height: 88px;
+
+    grid-template-columns:
+      58px
+      minmax(90px, 1fr)
+      62px
+      62px;
+
     gap: 8px;
+
+    padding: 10px 12px;
+
+    border-radius: 18px;
   }
 
-  button {
+  .floor {
+    font-size: 22px;
+  }
+
+  .count,
+  .b2-status {
+    font-size: 34px;
+  }
+
+  .control-button {
+    width: 62px;
+    height: 58px;
+
+    border-radius: 14px;
+
+    font-size: 30px;
+  }
+
+  .bottom-buttons {
+    max-width: 100%;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .bottom-button {
     height: 54px;
-    font-size: 18px;
-  }
 
-  .reset,
-  .excel {
-    width: 322px;
+    font-size: 14px;
+
+    border-radius: 14px;
   }
 }
